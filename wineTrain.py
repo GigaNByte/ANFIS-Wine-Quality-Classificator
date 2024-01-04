@@ -58,7 +58,7 @@ with tf.Session() as sess:
         # Evaluate on validation set
         val_pred, val_loss = fis.infer(sess, validationData_normalized, validationLabels_normalized)
         if epoch % 10 == 0:
-            print("Train cost after epoch %i: %f" % (epoch, trn_loss))
+            print("Epoch %i, Train cost: %f, Validation loss: %f" %  (epoch, trn_loss, val_loss))
         if epoch == num_epochs - 1:
             time_end = time.time()
             print("Elapsed time: %f" % (time_end - time_start))
