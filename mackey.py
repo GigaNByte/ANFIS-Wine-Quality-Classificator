@@ -34,6 +34,9 @@ trnLbls = lbls[:lbls.size - round(lbls.size * 0.3)]
 chkData = data[lbls.size - round(lbls.size * 0.3):, :]
 chkLbls = lbls[lbls.size - round(lbls.size * 0.3):]
 
+
+
+
 # ANFIS params and Tensorflow graph initialization
 m = 16  # number of rules
 alpha = 0.01  # learning rate
@@ -78,6 +81,13 @@ with tf.Session() as sess:
     plt.title("Validation loss, Learning rate =" + str(alpha))
     plt.ylabel('Cost')
     plt.xlabel('Epochs')
+    # Manual Prediction
+    manual_input_values = [7.3, 0.65, 0.0, 1.2, 0.065, 15.0, 21.0, 0.9946, 3.39, 0.47, 10.0]
+    manual_input = np.array([manual_input_values]).astype(np.float32)
+    manual_input_normalized = scaler.transform(manual_input)
+    manual_prediction, _ = fis.infer(sess, manual_input_normalized)
+    print("Manual Prediction: ", manual_prediction)
+
     # Plot resulting membership functions
     fis.plotmfs(sess)
     plt.show()
