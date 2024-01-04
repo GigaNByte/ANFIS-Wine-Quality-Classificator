@@ -29,16 +29,21 @@ scaler = StandardScaler()
 trainData_normalized = scaler.fit_transform(trainData)
 validationData_normalized = scaler.transform(validationData)
 
+scalerLabels = StandardScaler()
+# Normalize the labels using the same scaler
+trainLabels_normalized = scalerLabels.fit_transform(trainLabels.reshape(-1, 1)).flatten()
+validationLabels_normalized = scalerLabels.transform(validationLabels.reshape(-1, 1)).flatten()
+
 # ANFIS params and Tensorflow graph initialization
-m = 20  # number of rules
-alpha = 0.1  # learning rate
+m = 300  # number of rules
+alpha = 0.01  # learning rate
 plt.plot(trainData_normalized)
 plt.plot(validationData_normalized)
 
 fis = ANFIS(n_inputs=11, n_rules=m, learning_rate=alpha)
 
 # Training
-num_epochs = 100
+num_epochs = 200
 
 # Initialize session to make computations on the Tensorflow graph
 with tf.Session() as sess:
@@ -49,9 +54,9 @@ with tf.Session() as sess:
     time_start = time.time()
     for epoch in range(num_epochs):
         # Run an update step
-        trn_loss, trn_pred = fis.train(sess, trainData_normalized, trainLabels)
+        trn_loss, trn_pred = fis.train(sess, trainData_normalized, trainLabels_normalized)
         # Evaluate on validation set
-        val_pred, val_loss = fis.infer(sess, validationData_normalized, validationLabels)
+        val_pred, val_loss = fis.infer(sess, validationData_normalized, validationLabels_normalized)
         if epoch % 10 == 0:
             print("Train cost after epoch %i: %f" % (epoch, trn_loss))
         if epoch == num_epochs - 1:
@@ -75,7 +80,10 @@ with tf.Session() as sess:
     manual_input_values = [7.3, 0.65, 0.0, 1.2, 0.065, 15.0, 21.0, 0.9946, 3.39, 0.47, 10.0]
     manual_input = np.array([manual_input_values]).astype(np.float32)
     manual_input_normalized = scaler.transform(manual_input)
-    manual_prediction = fis.infer(sess, manual_input_normalized)
+
+    manual_prediction_normalized  = fis.infer(sess, manual_input_normalized)
+    # Unnormalize the predicted value
+    manual_prediction = scalerLabels.inverse_transform([manual_prediction_normalized])[0]
     print("Manual Prediction: ", manual_prediction)
     print("Actual Value: ", 7)
 
